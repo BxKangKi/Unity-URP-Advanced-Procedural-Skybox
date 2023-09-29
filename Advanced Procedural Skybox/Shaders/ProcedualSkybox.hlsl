@@ -207,7 +207,7 @@ float2x3 CalculateSkyboxVert(float3 eyeRay, float3 direction, float rayLength, f
 
 
 //// float ////
-void SkyboxVert_half(in float3 vertexIn, in float3 skyTint, in float exposure,
+void SkyboxVert_half(in float3 vertexIn, in float3 skyTint, in float exposure, in float4 fogColor, in float fogIntensity,
                     in float3 groundColorIn, in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness,
                     out float3 vertexOut, out float3 groundColorOut, out float3 skyColor, out float3 sunColorOut)
 {
@@ -225,6 +225,7 @@ void SkyboxVert_half(in float3 vertexIn, in float3 skyTint, in float exposure,
     float2x3 color = CalculateSkyboxVert(eyeRay, sunDirection, rayLength, _SkyTint);
     
     groundColorOut = exposure * (color[0] + groundColorIn * color[1]);
+    groundColorOut *= fogColor * fogIntensity;
     skyColor = exposure * (color[0] * getRayleighPhase(sunDirection.xyz, -eyeRay));
     float lightColorIntensity = clamp(length(sunColorIn.xyz), 0.25, 1);
     sunColorOut = kHDSundiskIntensityFactor * saturate(color[1]) * sunColorIn.xyz / lightColorIntensity;
@@ -261,7 +262,7 @@ void GetSunColor_half(in float3 ray, in float yValue, in float3 direction, in fl
 
 
 //// float ////
-void SkyboxVert_float(in float3 vertexIn, in float3 skyTint, in float exposure,
+void SkyboxVert_float(in float3 vertexIn, in float3 skyTint, in float exposure, in float4 fogColor, in float fogIntensity,
                     in float3 groundColorIn, in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness,
                     out float3 vertexOut, out float3 groundColorOut, out float3 skyColor, out float3 sunColorOut)
 {
@@ -279,7 +280,9 @@ void SkyboxVert_float(in float3 vertexIn, in float3 skyTint, in float exposure,
     float2x3 color = CalculateSkyboxVert(eyeRay, sunDirection, rayLength, _SkyTint);
     
     groundColorOut = exposure * (color[0] + groundColorIn * color[1]);
+    groundColorOut += fogColor * fogIntensity;
     skyColor = exposure * (color[0] * getRayleighPhase(sunDirection.xyz, -eyeRay));
+    skyColor += fogColor * fogIntensity * 0.1;
     float lightColorIntensity = clamp(length(sunColorIn.xyz), 0.25, 1);
     sunColorOut = kHDSundiskIntensityFactor * saturate(color[1]) * sunColorIn.xyz / lightColorIntensity;
 }
