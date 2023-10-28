@@ -49,9 +49,6 @@
             "m_Id": "55c3f5c1a8cc435b964b733f944c75ff"
         },
         {
-            "m_Id": "4a89f8d4f9144fa1863f30a4fae08af0"
-        },
-        {
             "m_Id": "24bd37c7371247ed9e2d9c92daed362e"
         },
         {
@@ -59,6 +56,9 @@
         },
         {
             "m_Id": "17aec0e7778d46eb8c03273f7ad4adb5"
+        },
+        {
+            "m_Id": "5fbe8750f7eb4684a70519431644e55b"
         }
     ],
     "m_GroupDatas": [
@@ -94,20 +94,6 @@
                     "m_Id": "55c3f5c1a8cc435b964b733f944c75ff"
                 },
                 "m_SlotId": 3
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
-                    "m_Id": "4a89f8d4f9144fa1863f30a4fae08af0"
-                },
-                "m_SlotId": 1
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "55c3f5c1a8cc435b964b733f944c75ff"
-                },
-                "m_SlotId": 2
             }
         },
         {
@@ -178,6 +164,20 @@
                     "m_Id": "e9e1c72646a44c84a55cf9e4d01e826b"
                 },
                 "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "5fbe8750f7eb4684a70519431644e55b"
+                },
+                "m_SlotId": 1
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "55c3f5c1a8cc435b964b733f944c75ff"
+                },
+                "m_SlotId": 2
             }
         },
         {
@@ -429,10 +429,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -492.49993896484377,
-            "y": 126.99995422363281,
+            "x": -483.9999694824219,
+            "y": -47.00001907348633,
             "width": 136.99996948242188,
-            "height": 34.00004577636719
+            "height": 34.0000114440918
         }
     },
     "m_Slots": [
@@ -586,10 +586,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -492.49993896484377,
-            "y": 184.00001525878907,
-            "width": 144.99993896484376,
-            "height": 136.9999542236328
+            "x": -470.9999694824219,
+            "y": 130.99996948242188,
+            "width": 144.99996948242188,
+            "height": 138.00003051757813
         }
     },
     "m_Slots": [
@@ -605,7 +605,7 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     },
-    "m_filter": 1,
+    "m_filter": 0,
     "m_wrap": 0,
     "m_aniso": 0
 }
@@ -786,33 +786,12 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
-    "m_ObjectId": "37759698b2764d6a9cc2ef951b379265",
-    "m_Id": 1,
-    "m_DisplayName": "UV",
-    "m_SlotType": 1,
-    "m_Hidden": false,
-    "m_ShaderOutputName": "UV",
-    "m_StageCapability": 3,
-    "m_Value": {
-        "x": 0.0,
-        "y": 0.0
-    },
-    "m_DefaultValue": {
-        "x": 0.0,
-        "y": 0.0
-    },
-    "m_Labels": []
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.GroupData",
     "m_ObjectId": "403068899d8241ae83996c191cc44130",
     "m_Title": "Clouds",
     "m_Position": {
-        "x": -2493.200439453125,
-        "y": -1481.95947265625
+        "x": -1040.0001220703125,
+        "y": -443.0
     }
 }
 
@@ -910,44 +889,6 @@
         "e32": 0.0,
         "e33": 1.0
     }
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.SubGraphNode",
-    "m_ObjectId": "4a89f8d4f9144fa1863f30a4fae08af0",
-    "m_Group": {
-        "m_Id": "403068899d8241ae83996c191cc44130"
-    },
-    "m_Name": "Skybox UV",
-    "m_DrawState": {
-        "m_Expanded": true,
-        "m_Position": {
-            "serializedVersion": "2",
-            "x": -817.1248779296875,
-            "y": 74.75006103515625,
-            "width": 208.0,
-            "height": 278.99993896484377
-        }
-    },
-    "m_Slots": [
-        {
-            "m_Id": "37759698b2764d6a9cc2ef951b379265"
-        }
-    ],
-    "synonyms": [],
-    "m_Precision": 0,
-    "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
-    "m_CustomColors": {
-        "m_SerializableColors": []
-    },
-    "m_SerializedSubGraph": "{\n    \"subGraph\": {\n        \"fileID\": -5475051401550479605,\n        \"guid\": \"ce7bf4a7ea1e24cb68597ce2c20be088\",\n        \"type\": 3\n    }\n}",
-    "m_PropertyGuids": [],
-    "m_PropertyIds": [],
-    "m_Dropdowns": [],
-    "m_DropdownSelectedEntries": []
 }
 
 {
@@ -1137,7 +1078,7 @@
         "tex2d"
     ],
     "m_Precision": 0,
-    "m_PreviewExpanded": true,
+    "m_PreviewExpanded": false,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
@@ -1210,6 +1151,44 @@
             "m_Id": "24bacfc5349847759ec2e2d197fae300"
         }
     ]
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.SubGraphNode",
+    "m_ObjectId": "5fbe8750f7eb4684a70519431644e55b",
+    "m_Group": {
+        "m_Id": "403068899d8241ae83996c191cc44130"
+    },
+    "m_Name": "Skybox UV",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -822.9999389648438,
+            "y": -32.00000762939453,
+            "width": 208.0,
+            "height": 279.0000305175781
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "b33eb508b06a47f787d01f7bf034504d"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_SerializedSubGraph": "{\n    \"subGraph\": {\n        \"fileID\": -5475051401550479605,\n        \"guid\": \"ce7bf4a7ea1e24cb68597ce2c20be088\",\n        \"type\": 3\n    }\n}",
+    "m_PropertyGuids": [],
+    "m_PropertyIds": [],
+    "m_Dropdowns": [],
+    "m_DropdownSelectedEntries": []
 }
 
 {
@@ -1772,6 +1751,27 @@
     },
     "m_Labels": [],
     "m_Channel": 0
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
+    "m_ObjectId": "b33eb508b06a47f787d01f7bf034504d",
+    "m_Id": 1,
+    "m_DisplayName": "UV",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "UV",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "m_Labels": []
 }
 
 {

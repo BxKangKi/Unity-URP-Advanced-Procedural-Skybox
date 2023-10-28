@@ -50,13 +50,14 @@ static const float kSamples = 2.0; // THIS IS UNROLLED MANUALLY, DON'T TOUCH
 #define MIE_G (-0.990)
 #define MIE_G2 0.9801
 #define SKYBOX_PI 3.14159265
+#define HORIZON (-0.1)
 
-#define SKY_GROUND_THRESHOLD 0.02
+#define SKY_GROUND_THRESHOLD 0.05
 
 float scale(float inCos)
 {
     float x = 1.0 - inCos;
-    return 0.25 * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
+    return 0.25 * exp(-0.00287 + x * (0.459 + x*(3.83 + x * (-6.80 + x * 5.25))));
 }
 
 float getRayleighPhase(float eyeCos2)
@@ -97,12 +98,16 @@ float calcSunAttenuation(float3 lightPos, float3 ray, float size, float sizeCove
 }
 
 
-float2x3 CalculateSkyboxVert(float3 eyeRay, float3 direction, float rayLength, float3 skyTint)
+float2x4 CalculateSkybox(float3 vertex, float3 direction, float atmosphereThickness, float3 skyColor,
+                            float3 groundColor, float3 sunColor, float exposure, float size, float coverage)
 {
+    // Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
+    float3 eyeRay = normalize((mul((float3x3)unity_ObjectToWorld, vertex.xyz)));
+    float rayLength = lerp(0.0, 0.0025, pow(atmosphereThickness, 2.5));
     float3 kScatteringWavelength = lerp (
     kDefaultScatteringWavelength - kVariableRangeForScatteringWavelength,
     kDefaultScatteringWavelength + kVariableRangeForScatteringWavelength,
-    float3(1, 1, 1) - skyTint); // using Tint in sRGB gamma allows for more visually linear interpolation and to keep (.5) at (128, gray in sRGB) point
+    float3(1, 1, 1) - skyColor); // using Tint in sRGB gamma allows for more visually linear interpolation and to keep (.5) at (128, gray in sRGB) point
     float kKrESun = rayLength * kSUN_BRIGHTNESS;
     float kKr4PI = rayLength * 4.0 * 3.14159265;
     float3 kInvWavelength = 1.0 / pow(kScatteringWavelength, 4);
@@ -110,7 +115,7 @@ float2x3 CalculateSkyboxVert(float3 eyeRay, float3 direction, float rayLength, f
     float far = 0.0;
     float3 cIn, cOut;
 
-    if (eyeRay.y >= -0.1)
+    if (eyeRay.y >= HORIZON)
     {
         // Sky
         // Calculate the length of the "atmosphere"
@@ -200,112 +205,64 @@ float2x3 CalculateSkyboxVert(float3 eyeRay, float3 direction, float rayLength, f
         cIn = frontColor * (kInvWavelength * kKrESun + kKmESun);
         cOut = clamp(attenuate, 0.0, 1.0);
     }
-    return float2x3(cIn, cOut);
-}
-
-
-
-
-//// float ////
-void SkyboxVert_half(in float3 vertexIn, in float3 skyTint, in float exposure, in float4 fogColor, in float fogIntensity,
-                    in float3 groundColorIn, in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness,
-                    out float3 vertexOut, out float3 groundColorOut, out float3 skyColor, out float3 sunColorOut)
-{
-    float rayLength = lerp(0.0, 0.0025, pow(atmosphereThickness, 2.5));
-
-    // Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
-    float3 eyeRay = normalize(mul((float3x3)unity_ObjectToWorld, vertexIn.xyz));
-
-    vertexOut = -eyeRay;
 
     // if we want to calculate color in vprog:
     // 1. in case of linear: multiply by _Exposure in here (even in case of lerp it will be common multiplier, so we can skip mul in fshader)
     // 2. in case of gamma and SKYBOX_COLOR_IN_TARGET_COLOR_SPACE: do sqrt right away instead of doing that in fshader
 
-    float2x3 color = CalculateSkyboxVert(eyeRay, sunDirection, rayLength, _SkyTint);
-    
-    groundColorOut = exposure * (color[0] + groundColorIn * color[1]);
-    groundColorOut *= fogColor * fogIntensity;
-    skyColor = exposure * (color[0] * getRayleighPhase(sunDirection.xyz, -eyeRay));
-    float lightColorIntensity = clamp(length(sunColorIn.xyz), 0.25, 1);
-    sunColorOut = kHDSundiskIntensityFactor * saturate(color[1]) * sunColorIn.xyz / lightColorIntensity;
-}
+    float3 ray = normalize(-eyeRay);
+    float y = (ray.y / SKY_GROUND_THRESHOLD) -1;
 
+    groundColor = exposure * (cIn + groundColor * cOut);
+    skyColor = exposure * (cIn * getRayleighPhase(direction.xyz, -eyeRay));
+    float lightColorIntensity = clamp(length(sunColor.xyz), 0.25, 1);
+    sunColor = kHDSundiskIntensityFactor * saturate(cOut) * sunColor.xyz / lightColorIntensity;
 
-void GetRay_half(in float3 vertex, out float3 ray, out float yValue)
-{
-    ray = normalize(vertex.xyz);
-    yValue = ray.y / SKY_GROUND_THRESHOLD;
-}
+    float4 result0, result1;
+    result0 = float4(lerp(skyColor, groundColor, saturate(y)), 1.0);
 
-
-void GetSkyColor_half(in float yValue, in float3 groundColor, in float3 skyColor, out float3 col)
-{
-    col = lerp(skyColor, groundColor, saturate(yValue));
-}
-
-
-void GetSunColor_half(in float3 ray, in float yValue, in float3 direction, in float size, in float coverage, in float3 sunColor, out float3 result)
-{
-    if (yValue < -0.1)
+    if (y < HORIZON)
     {
-        result = sunColor * calcSunAttenuation(direction.xyz, -ray, size, coverage);
+        result1 = float4(sunColor * calcSunAttenuation(direction.xyz, -ray, size, coverage), y);
     }
-    else result = float3(0.0, 0.0, 0.0);
+    else
+    {
+        result1 = float4(0, 0, 0, y);
+    }
+
+    return float2x4(result0, result1);
 }
 
 
 
+
+
+
+//// half ////
+void SkyboxVert_half(in float3 vertexIn, in float3 skyTint, in float exposure, in float3 groundColorIn,
+                    in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness, in float sunSize,
+                    in float sunCoverage, out float3 skyColor, out float3 sunColorOut, out float yValue)
+{
+    float2x4 color = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
+                                        groundColorIn, sunColorIn, exposure, sunSize, sunCoverage);
+    skyColor = color[0].xyz;
+    sunColorOut = color[1].xyz;
+    yValue = color[1].w;
+}
 
 
 
 
 
 //// float ////
-void SkyboxVert_float(in float3 vertexIn, in float3 skyTint, in float exposure, in float4 fogColor, in float fogIntensity,
-                    in float3 groundColorIn, in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness,
-                    out float3 vertexOut, out float3 groundColorOut, out float3 skyColor, out float3 sunColorOut)
+void SkyboxVert_float(in float3 vertexIn, in float3 skyTint, in float exposure, in float3 groundColorIn,
+                    in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness, in float sunSize,
+                    in float sunCoverage, out float3 skyColor, out float3 sunColorOut, out float yValue)
 {
-    float rayLength = lerp(0.0, 0.0025, pow(atmosphereThickness, 2.5));
-
-    // Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
-    float3 eyeRay = normalize(mul((float3x3)unity_ObjectToWorld, vertexIn.xyz));
-
-    vertexOut = -eyeRay;
-
-    // if we want to calculate color in vprog:
-    // 1. in case of linear: multiply by _Exposure in here (even in case of lerp it will be common multiplier, so we can skip mul in fshader)
-    // 2. in case of gamma and SKYBOX_COLOR_IN_TARGET_COLOR_SPACE: do sqrt right away instead of doing that in fshader
-
-    float2x3 color = CalculateSkyboxVert(eyeRay, sunDirection, rayLength, _SkyTint);
-    
-    groundColorOut = exposure * (color[0] + groundColorIn * color[1]);
-    groundColorOut += fogColor * fogIntensity;
-    skyColor = exposure * (color[0] * getRayleighPhase(sunDirection.xyz, -eyeRay));
-    skyColor += fogColor * fogIntensity * 0.1;
-    float lightColorIntensity = clamp(length(sunColorIn.xyz), 0.25, 1);
-    sunColorOut = kHDSundiskIntensityFactor * saturate(color[1]) * sunColorIn.xyz / lightColorIntensity;
+    float2x4 color = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
+                                        groundColorIn, sunColorIn, exposure, sunSize, sunCoverage);
+    skyColor = color[0].xyz;
+    sunColorOut = color[1].xyz;
+    yValue = color[1].w;
 }
 
-
-void GetRay_float(in float3 vertex, out float3 ray, out float yValue)
-{
-    ray = normalize(vertex.xyz);
-    yValue = ray.y / SKY_GROUND_THRESHOLD;
-}
-
-
-void GetSkyColor_float(in float yValue, in float3 groundColor, in float3 skyColor, out float3 col)
-{
-    col = lerp(skyColor, groundColor, saturate(yValue));
-}
-
-
-void GetSunColor_float(in float3 ray, in float yValue, in float3 direction, in float size, in float coverage, in float3 sunColor, out float3 result)
-{
-    if (yValue < -0.1)
-    {
-        result = sunColor * calcSunAttenuation(direction.xyz, -ray, size, coverage);
-    }
-    else result = float3(0.0, 0.0, 0.0);
-}
