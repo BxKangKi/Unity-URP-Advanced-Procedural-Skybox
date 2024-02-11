@@ -102,6 +102,7 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _CloudPower: 2
     - _CloudSpeed: 1
     - _Cull: 2
     - _Cutoff: 0.5

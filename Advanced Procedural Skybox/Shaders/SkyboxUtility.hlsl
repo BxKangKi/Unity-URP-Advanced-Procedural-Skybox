@@ -18,17 +18,6 @@ half scale(half inCos)
     return 0.25 * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
 }
 
-/*
-half3 RotateAroundYInDegrees (half3 vertex, half degrees)
-{
-    half alpha = degrees * SKYBOX_PI / 180.0;
-    half sina, cosa;
-    sincos(alpha, sina, cosa);
-    half2x2 m = half2x2(cosa, -sina, sina, cosa);
-    return half3(mul(m, vertex.xz), vertex.y).xzy;
-}
-*/
-
 // Calculates the Mie phase function
 half getMiePhase(half eyeCos, half eyeCos2, half size)
 {

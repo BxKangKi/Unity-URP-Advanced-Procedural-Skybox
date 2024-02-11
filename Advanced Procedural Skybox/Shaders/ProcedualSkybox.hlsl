@@ -1,6 +1,6 @@
 #include "SkyboxUtility.hlsl"
 
-half2x3 CalculateSkybox(half3 vertex, half3 direction, half atmosphereThickness, half3 skyColor,
+half3x3 CalculateSkybox(half3 vertex, half3 direction, half atmosphereThickness, half3 skyColor,
                             half3 groundColor, half3 sunColor, half exposure, half size, half coverage)
 {
     half3 kSkyTintInGammaSpace = COLOR_2_GAMMA(skyColor); // convert tint from Linear back to Gamma
@@ -152,7 +152,7 @@ half2x3 CalculateSkybox(half3 vertex, half3 direction, half atmosphereThickness,
         col = LINEAR_2_OUTPUT(col);
     #endif
 
-    return half2x3(col, sunColor);
+    return half3x3(col, sunColor, half3(y, 0.0, 0.0));
 }
 
 
@@ -160,12 +160,13 @@ half2x3 CalculateSkybox(half3 vertex, half3 direction, half atmosphereThickness,
 //// float ////
 void SkyboxColor_float(in float3 vertexIn, in float3 skyTint, in float exposure, in float3 groundColorIn,
                     in float3 sunDirection, in float3 sunColorIn, in float atmosphereThickness, in float sunSize,
-                    in float sunCoverage, out float3 skyColor, out float3 sunColorOut)
+                    in float sunCoverage, out float3 skyColor, out float3 sunColorOut, out float yValue)
 {
-    float2x3 color = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
+    float3x3 result = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
                                         groundColorIn, sunColorIn, exposure, sunSize, sunCoverage);
-    skyColor = color[0];
-    sunColorOut = color[1];
+    skyColor = result[0];
+    sunColorOut = result[1];
+    yValue = result[2].x;
 }
 
 
@@ -173,10 +174,11 @@ void SkyboxColor_float(in float3 vertexIn, in float3 skyTint, in float exposure,
 //// half ////
 void SkyboxColor_half(in half3 vertexIn, in half3 skyTint, in half exposure, in half3 groundColorIn,
                     in half3 sunDirection, in half3 sunColorIn, in half atmosphereThickness, in half sunSize,
-                    in half sunCoverage, out half3 skyColor, out half3 sunColorOut)
+                    in half sunCoverage, out half3 skyColor, out half3 sunColorOut, out half yValue)
 {
-    half2x3 color = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
+    half3x3 result = CalculateSkybox(vertexIn, sunDirection, atmosphereThickness, skyTint,
                                         groundColorIn, sunColorIn, exposure, sunSize, sunCoverage);
-    skyColor = color[0];
-    sunColorOut = color[1];
+    skyColor = result[0];
+    sunColorOut = result[1];
+    yValue = result[2].x;
 }

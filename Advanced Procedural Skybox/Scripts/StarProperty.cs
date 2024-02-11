@@ -10,8 +10,7 @@ public class StarProperty : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (skybox != null)
-        {
+        if (skybox != null) {
             skybox.SetVector("_StarDirection", -transform.forward);
         }
     }
